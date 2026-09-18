@@ -12,10 +12,6 @@
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: {
-              sans: ["IBM Plex Sans", "Inter", "system-ui", "sans-serif"],
-              mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
-            },
             colors: {
               void: "#05070b",
               panel: "#0b1118",
@@ -29,7 +25,6 @@
       };
     </script>
     <style>
-      :root { color-scheme: dark; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -46,8 +41,8 @@
     <div id="root"></div>
     <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel" data-presets="react">
+    <script>
+      const e = React.createElement;
       const { useMemo, useState } = React;
 
       const MOCK = {
@@ -60,13 +55,12 @@
           calories: { current: 1684, target: 2100, unit: "kcal" },
         },
         training: {
-          cardio: { title: "Incline Treadmill Cardio", date: "Today · AM", duration: "42:00", incline: "8%", distance: "5.6 km", calories: 487, avgHr: 141, maxHr: 164, pace: "7:30 /km" },
+          cardio: { title: "Incline Treadmill Cardio", date: "Today · AM", duration: "42:00", incline: "8%", distance: "5.6 km", calories: 487, avgHr: 141, pace: "7:30 /km" },
           strength: {
             title: "Full-Body Strength Supersets",
             date: "Yesterday · PM",
             duration: "54:00",
             calories: 312,
-            volume: "18,640 kg",
             supersets: [
               { name: "A · Posterior chain", pairs: [{ exercise: "Romanian deadlift", sets: 4, reps: "8", load: "90 kg" }, { exercise: "Weighted chin-up", sets: 4, reps: "6", load: "+12 kg" }] },
               { name: "B · Push + core", pairs: [{ exercise: "Incline DB press", sets: 4, reps: "8", load: "32 kg" }, { exercise: "Hanging knee raise", sets: 4, reps: "12", load: "BW" }] },
@@ -88,230 +82,238 @@
         { id: "nutrition", label: "Nutrition" },
       ];
 
-      function IconPulse({ className = "w-5 h-5" }) {
-        return (
-          <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M3 12h3l2.2-6 3.6 12 2.4-6H21" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        );
-      }
-
       function pct(current, target) {
         return target ? Math.min(100, Math.round((current / target) * 100)) : 0;
       }
 
-      function Ring({ value, size = 128, stroke = 10, color = "#22e0d0" }) {
+      function Ring(props) {
+        const value = props.value;
+        const size = 128;
+        const stroke = 10;
         const r = (size - stroke) / 2;
         const c = 2 * Math.PI * r;
         const offset = c - (value / 100) * c;
-        return (
-          <svg width={size} height={size} className="rotate-[-90deg]">
-            <circle cx={size / 2} cy={size / 2} r={r} stroke="#1c2a38" strokeWidth={stroke} fill="none" />
-            <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" />
-          </svg>
+        return e("svg", { width: size, height: size, className: "rotate-[-90deg]" },
+          e("circle", { cx: size / 2, cy: size / 2, r: r, stroke: "#1c2a38", strokeWidth: stroke, fill: "none" }),
+          e("circle", { cx: size / 2, cy: size / 2, r: r, stroke: "#22e0d0", strokeWidth: stroke, fill: "none", strokeDasharray: c, strokeDashoffset: offset, strokeLinecap: "round" })
         );
       }
 
-      function LoginScreen({ onSignIn }) {
+      function LoginScreen(props) {
         const [email, setEmail] = useState("alex.rivera@aether.lab");
         const [password, setPassword] = useState("password");
         const [busy, setBusy] = useState(false);
-        const submit = (e) => {
-          e.preventDefault();
+        function submit(ev) {
+          ev.preventDefault();
           setBusy(true);
-          setTimeout(() => onSignIn(), 350);
-        };
-        return (
-          <div className="min-h-screen flex items-center justify-center px-4">
-            <div className="w-full max-w-md">
-              <div className="mb-8 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-neon/30 bg-panel">
-                  <IconPulse className="w-6 h-6 text-cyan-neon" />
-                </div>
-                <p className="font-mono text-[11px] tracking-[0.28em] text-cyan-neon uppercase">Aether Lab</p>
-                <h1 className="mt-2 text-3xl font-semibold">Unified Telemetry</h1>
-                <p className="mt-2 text-sm text-slate-400">Wearable · Training · Nutrition</p>
-              </div>
-              <form onSubmit={submit} className="rounded-2xl border border-line bg-panel/80 p-6">
-                <label className="block text-xs text-slate-400 mb-1.5">Email</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mb-4 w-full rounded-xl border border-line bg-void px-3.5 py-3 text-sm outline-none" required />
-                <label className="block text-xs text-slate-400 mb-1.5">Password</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mb-5 w-full rounded-xl border border-line bg-void px-3.5 py-3 text-sm outline-none" required />
-                <button type="submit" className="w-full rounded-xl bg-cyan-neon py-3 text-sm font-semibold text-void">{busy ? "Signing in…" : "Sign In"}</button>
-                <p className="mt-4 text-center text-[11px] text-slate-500">Any email and password works</p>
-              </form>
-            </div>
-          </div>
+          setTimeout(function () { props.onSignIn(); }, 300);
+        }
+        return e("div", { className: "min-h-screen flex items-center justify-center px-4" },
+          e("div", { className: "w-full max-w-md" },
+            e("div", { className: "mb-8 text-center" },
+              e("p", { className: "font-mono text-[11px] tracking-[0.28em] text-cyan-neon uppercase" }, "Aether Lab"),
+              e("h1", { className: "mt-2 text-3xl font-semibold" }, "Unified Telemetry"),
+              e("p", { className: "mt-2 text-sm text-slate-400" }, "Wearable · Training · Nutrition")
+            ),
+            e("form", { onSubmit: submit, className: "rounded-2xl border border-line bg-panel/80 p-6" },
+              e("label", { className: "block text-xs text-slate-400 mb-1.5" }, "Email"),
+              e("input", { type: "email", value: email, onChange: function (ev) { setEmail(ev.target.value); }, className: "mb-4 w-full rounded-xl border border-line bg-void px-3.5 py-3 text-sm outline-none", required: true }),
+              e("label", { className: "block text-xs text-slate-400 mb-1.5" }, "Password"),
+              e("input", { type: "password", value: password, onChange: function (ev) { setPassword(ev.target.value); }, className: "mb-5 w-full rounded-xl border border-line bg-void px-3.5 py-3 text-sm outline-none", required: true }),
+              e("button", { type: "submit", className: "w-full rounded-xl bg-cyan-neon py-3 text-sm font-semibold text-void" }, busy ? "Signing in…" : "Sign In"),
+              e("p", { className: "mt-4 text-center text-[11px] text-slate-500" }, "Any email and password works")
+            )
+          )
         );
       }
 
-      function MacroBar({ label, current, target, unit, tone }) {
+      function MacroBar(props) {
         const tones = { protein: "from-cyan-neon to-emerald-400", fat: "from-violet-neon to-fuchsia-400", carbs: "from-amber-400 to-orange-400", calories: "from-sky-400 to-cyan-neon" };
-        return (
-          <div>
-            <div className="mb-1.5 flex justify-between text-xs">
-              <span className="uppercase tracking-wider text-slate-400">{label}</span>
-              <span className="font-mono">{current} / {target} {unit}</span>
-            </div>
-            <div className="h-2 rounded-full bg-void border border-line overflow-hidden">
-              <div className={`h-full bg-gradient-to-r ${tones[tone]}`} style={{ width: pct(current, target) + "%" }} />
-            </div>
-          </div>
+        return e("div", null,
+          e("div", { className: "mb-1.5 flex justify-between text-xs" },
+            e("span", { className: "uppercase tracking-wider text-slate-400" }, props.label),
+            e("span", { className: "font-mono" }, props.current + " / " + props.target + " " + props.unit)
+          ),
+          e("div", { className: "h-2 rounded-full bg-void border border-line overflow-hidden" },
+            e("div", { className: "h-full bg-gradient-to-r " + tones[props.tone], style: { width: pct(props.current, props.target) + "%" } })
+          )
         );
       }
 
-      function Dashboard({ onSignOut }) {
+      function Dashboard(props) {
         const [section, setSection] = useState("overview");
         const [mobileNav, setMobileNav] = useState(false);
         const [supps, setSupps] = useState(MOCK.supplements);
-        const takenCount = useMemo(() => supps.filter((s) => s.taken).length, [supps]);
-        const show = (id) => section === "overview" || section === id;
-        return (
-          <div className="min-h-screen flex">
-            <aside className="hidden lg:flex w-64 flex-col border-r border-line bg-panel/80">
-              <div className="px-5 py-6 border-b border-line">
-                <p className="font-mono text-[10px] tracking-[0.22em] text-cyan-neon uppercase">Aether Lab</p>
-                <p className="text-sm font-semibold">Telemetry</p>
-              </div>
-              <nav className="flex-1 px-3 py-4 space-y-1">
-                {NAV.map((item) => (
-                  <button key={item.id} onClick={() => setSection(item.id)} className={`w-full rounded-xl px-3 py-2.5 text-left text-sm ${section === item.id ? "bg-cyan-neon/10 text-cyan-neon border border-cyan-neon/20" : "text-slate-400 border border-transparent"}`}>{item.label}</button>
-                ))}
-              </nav>
-              <div className="p-4 border-t border-line">
-                <p className="text-sm font-medium">{MOCK.athlete.name}</p>
-                <button onClick={onSignOut} className="mt-3 w-full rounded-xl border border-line px-3 py-2 text-xs text-slate-400">Sign out</button>
-              </div>
-            </aside>
-            <div className="flex-1 min-w-0">
-              <header className="sticky top-0 z-20 border-b border-line bg-void/80 backdrop-blur">
-                <div className="flex items-center justify-between px-4 py-3.5">
-                  <div>
-                    <button className="lg:hidden mb-2 rounded-lg border border-line px-2 py-1 text-xs" onClick={() => setMobileNav(!mobileNav)}>Menu</button>
-                    <h2 className="text-lg font-semibold">Command Dashboard</h2>
-                    <p className="text-[11px] text-slate-500 font-mono">Last sync {MOCK.athlete.lastSync}</p>
-                  </div>
-                  <span className="hidden sm:flex items-center gap-2 text-xs text-slate-400"><span className="h-2 w-2 rounded-full bg-cyan-neon animate-pulse" /> Live mock</span>
-                </div>
-                {mobileNav && (
-                  <div className="lg:hidden px-3 pb-3 flex gap-2 overflow-x-auto">
-                    {NAV.map((item) => (
-                      <button key={item.id} onClick={() => { setSection(item.id); setMobileNav(false); }} className={`rounded-full px-3 py-1.5 text-xs ${section === item.id ? "bg-cyan-neon text-void" : "border border-line text-slate-400"}`}>{item.label}</button>
-                    ))}
-                  </div>
-                )}
-              </header>
-              <main className="p-4 sm:p-6 space-y-6 max-w-7xl">
-                {show("wearable") && (
-                  <section>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-cyan-neon">Wearable telemetry</p>
-                    <h3 className="text-xl font-semibold mb-3">Readiness stack</h3>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <article className="rounded-2xl border border-line bg-card p-5">
-                        <p className="text-xs text-slate-400 uppercase">Resting heart rate</p>
-                        <p className="mt-3 text-4xl font-semibold">{MOCK.wearable.restingHr} <span className="text-sm text-slate-500">bpm</span></p>
-                        <p className="mt-2 text-xs text-emerald-400">{MOCK.wearable.restingHrDelta} bpm vs 7-day</p>
-                      </article>
-                      <article className="rounded-2xl border border-line bg-card p-5">
-                        <p className="text-xs text-slate-400 uppercase">HRV (rMSSD)</p>
-                        <p className="mt-3 text-4xl font-semibold">{MOCK.wearable.hrv} <span className="text-sm text-slate-500">ms</span></p>
-                        <p className="mt-2 text-xs text-emerald-400">+{MOCK.wearable.hrvDelta} ms recovery</p>
-                      </article>
-                      <article className="rounded-2xl border border-cyan-neon/20 bg-card p-5 flex items-center gap-4">
-                        <div className="relative shrink-0">
-                          <Ring value={MOCK.wearable.readiness} />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-3xl font-semibold">{MOCK.wearable.readiness}</span>
-                            <span className="text-[10px] uppercase text-slate-400">score</span>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-400 uppercase">Daily readiness</p>
-                          <p className="text-2xl font-semibold text-cyan-neon">{MOCK.wearable.readinessLabel}</p>
-                          <p className="text-xs text-slate-500 mt-1">Body battery {MOCK.wearable.bodyBattery}</p>
-                        </div>
-                      </article>
-                    </div>
-                  </section>
-                )}
-                {show("training") && (
-                  <section>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-violet-neon">Training log</p>
-                    <h3 className="text-xl font-semibold mb-3">Cardio vs strength</h3>
-                    <div className="grid gap-4 xl:grid-cols-2">
-                      <article className="rounded-2xl border border-line bg-card overflow-hidden">
-                        <div className="px-5 py-4 border-b border-line">
-                          <h4 className="font-semibold">{MOCK.training.cardio.title}</h4>
-                          <p className="text-[11px] text-slate-500">{MOCK.training.cardio.date}</p>
-                        </div>
-                        <div className="grid grid-cols-3 gap-px bg-line">
-                          {[["Time", MOCK.training.cardio.duration], ["Incline", MOCK.training.cardio.incline], ["Calories", MOCK.training.cardio.calories + " kcal"], ["Distance", MOCK.training.cardio.distance], ["Avg HR", MOCK.training.cardio.avgHr + " bpm"], ["Pace", MOCK.training.cardio.pace]].map(([k, v]) => (
-                            <div key={k} className="bg-card px-4 py-4">
-                              <p className="text-[10px] uppercase text-slate-500">{k}</p>
-                              <p className="mt-1 font-mono text-sm">{v}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </article>
-                      <article className="rounded-2xl border border-line bg-card overflow-hidden">
-                        <div className="px-5 py-4 border-b border-line">
-                          <h4 className="font-semibold">{MOCK.training.strength.title}</h4>
-                          <p className="text-[11px] text-slate-500">{MOCK.training.strength.date} · {MOCK.training.strength.duration}</p>
-                        </div>
-                        {MOCK.training.strength.supersets.map((block) => (
-                          <div key={block.name} className="px-5 py-3 border-t border-line">
-                            <p className="mb-2 text-[11px] uppercase text-slate-500">{block.name}</p>
-                            {block.pairs.map((ex) => (
-                              <div key={ex.exercise} className="flex justify-between text-sm py-1">
-                                <span>{ex.exercise}</span>
-                                <span className="font-mono text-[11px] text-slate-400">{ex.sets} × {ex.reps} · {ex.load}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </article>
-                    </div>
-                  </section>
-                )}
-                {show("nutrition") && (
-                  <section>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-amber-300">Nutrition & supplements</p>
-                    <h3 className="text-xl font-semibold mb-3">Low-carbohydrate day</h3>
-                    <div className="grid gap-4 lg:grid-cols-5">
-                      <article className="lg:col-span-3 rounded-2xl border border-line bg-card p-5 space-y-4">
-                        <MacroBar label="Protein" {...MOCK.macros.protein} tone="protein" />
-                        <MacroBar label="Fat" {...MOCK.macros.fat} tone="fat" />
-                        <MacroBar label="Carbohydrates" {...MOCK.macros.carbs} tone="carbs" />
-                        <MacroBar label="Energy" {...MOCK.macros.calories} tone="calories" />
-                      </article>
-                      <article className="lg:col-span-2 rounded-2xl border border-line bg-card p-5">
-                        <div className="mb-4 flex justify-between text-sm">
-                          <span>Daily checklist</span>
-                          <span className="font-mono text-cyan-neon">{takenCount}/{supps.length}</span>
-                        </div>
-                        {supps.map((s) => (
-                          <button key={s.id} onClick={() => setSupps((prev) => prev.map((x) => x.id === s.id ? { ...x, taken: !x.taken } : x))} className={`mb-3 w-full rounded-xl border px-3 py-3 text-left ${s.taken ? "border-cyan-neon/30 bg-cyan-neon/5" : "border-line bg-void"}`}>
-                            <span className="block text-sm font-medium">{s.taken ? "✓ " : ""}{s.name}</span>
-                            <span className="block text-[11px] text-slate-500">{s.dose} · {s.timing}</span>
-                          </button>
-                        ))}
-                      </article>
-                    </div>
-                  </section>
-                )}
-              </main>
-            </div>
-          </div>
+        const takenCount = useMemo(function () { return supps.filter(function (s) { return s.taken; }).length; }, [supps]);
+        function show(id) { return section === "overview" || section === id; }
+        function toggle(id) {
+          setSupps(function (prev) { return prev.map(function (s) { return s.id === id ? Object.assign({}, s, { taken: !s.taken }) : s; }); });
+        }
+
+        const navBtns = NAV.map(function (item) {
+          return e("button", {
+            key: item.id,
+            onClick: function () { setSection(item.id); },
+            className: "w-full rounded-xl px-3 py-2.5 text-left text-sm " + (section === item.id ? "bg-cyan-neon/10 text-cyan-neon border border-cyan-neon/20" : "text-slate-400 border border-transparent")
+          }, item.label);
+        });
+
+        const wearable = show("wearable") ? e("section", null,
+          e("p", { className: "font-mono text-[11px] uppercase tracking-[0.2em] text-cyan-neon" }, "Wearable telemetry"),
+          e("h3", { className: "text-xl font-semibold mb-3" }, "Readiness stack"),
+          e("div", { className: "grid gap-4 md:grid-cols-3" },
+            e("article", { className: "rounded-2xl border border-line bg-card p-5" },
+              e("p", { className: "text-xs text-slate-400 uppercase" }, "Resting heart rate"),
+              e("p", { className: "mt-3 text-4xl font-semibold" }, MOCK.wearable.restingHr + " ", e("span", { className: "text-sm text-slate-500" }, "bpm")),
+              e("p", { className: "mt-2 text-xs text-emerald-400" }, MOCK.wearable.restingHrDelta + " bpm vs 7-day")
+            ),
+            e("article", { className: "rounded-2xl border border-line bg-card p-5" },
+              e("p", { className: "text-xs text-slate-400 uppercase" }, "HRV (rMSSD)"),
+              e("p", { className: "mt-3 text-4xl font-semibold" }, MOCK.wearable.hrv + " ", e("span", { className: "text-sm text-slate-500" }, "ms")),
+              e("p", { className: "mt-2 text-xs text-emerald-400" }, "+" + MOCK.wearable.hrvDelta + " ms recovery")
+            ),
+            e("article", { className: "rounded-2xl border border-cyan-neon/20 bg-card p-5 flex items-center gap-4" },
+              e("div", { className: "relative shrink-0" },
+                e(Ring, { value: MOCK.wearable.readiness }),
+                e("div", { className: "absolute inset-0 flex flex-col items-center justify-center" },
+                  e("span", { className: "text-3xl font-semibold" }, String(MOCK.wearable.readiness)),
+                  e("span", { className: "text-[10px] uppercase text-slate-400" }, "score")
+                )
+              ),
+              e("div", null,
+                e("p", { className: "text-xs text-slate-400 uppercase" }, "Daily readiness"),
+                e("p", { className: "text-2xl font-semibold text-cyan-neon" }, MOCK.wearable.readinessLabel),
+                e("p", { className: "text-xs text-slate-500 mt-1" }, "Body battery " + MOCK.wearable.bodyBattery)
+              )
+            )
+          )
+        ) : null;
+
+        const cardioCells = [
+          ["Time", MOCK.training.cardio.duration],
+          ["Incline", MOCK.training.cardio.incline],
+          ["Calories", MOCK.training.cardio.calories + " kcal"],
+          ["Distance", MOCK.training.cardio.distance],
+          ["Avg HR", MOCK.training.cardio.avgHr + " bpm"],
+          ["Pace", MOCK.training.cardio.pace],
+        ].map(function (pair) {
+          return e("div", { key: pair[0], className: "bg-card px-4 py-4" },
+            e("p", { className: "text-[10px] uppercase text-slate-500" }, pair[0]),
+            e("p", { className: "mt-1 font-mono text-sm" }, pair[1])
+          );
+        });
+
+        const strengthBlocks = MOCK.training.strength.supersets.map(function (block) {
+          return e("div", { key: block.name, className: "px-5 py-3 border-t border-line" },
+            e("p", { className: "mb-2 text-[11px] uppercase text-slate-500" }, block.name),
+            block.pairs.map(function (ex) {
+              return e("div", { key: ex.exercise, className: "flex justify-between text-sm py-1" },
+                e("span", null, ex.exercise),
+                e("span", { className: "font-mono text-[11px] text-slate-400" }, ex.sets + " \u00d7 " + ex.reps + " \u00b7 " + ex.load)
+              );
+            })
+          );
+        });
+
+        const training = show("training") ? e("section", null,
+          e("p", { className: "font-mono text-[11px] uppercase tracking-[0.2em] text-violet-neon" }, "Training log"),
+          e("h3", { className: "text-xl font-semibold mb-3" }, "Cardio vs strength"),
+          e("div", { className: "grid gap-4 xl:grid-cols-2" },
+            e("article", { className: "rounded-2xl border border-line bg-card overflow-hidden" },
+              e("div", { className: "px-5 py-4 border-b border-line" },
+                e("h4", { className: "font-semibold" }, MOCK.training.cardio.title),
+                e("p", { className: "text-[11px] text-slate-500" }, MOCK.training.cardio.date)
+              ),
+              e("div", { className: "grid grid-cols-3 gap-px bg-line" }, cardioCells)
+            ),
+            e("article", { className: "rounded-2xl border border-line bg-card overflow-hidden" },
+              e("div", { className: "px-5 py-4 border-b border-line" },
+                e("h4", { className: "font-semibold" }, MOCK.training.strength.title),
+                e("p", { className: "text-[11px] text-slate-500" }, MOCK.training.strength.date + " \u00b7 " + MOCK.training.strength.duration)
+              ),
+              strengthBlocks
+            )
+          )
+        ) : null;
+
+        const suppBtns = supps.map(function (s) {
+          return e("button", {
+            key: s.id,
+            onClick: function () { toggle(s.id); },
+            className: "mb-3 w-full rounded-xl border px-3 py-3 text-left " + (s.taken ? "border-cyan-neon/30 bg-cyan-neon/5" : "border-line bg-void")
+          },
+            e("span", { className: "block text-sm font-medium" }, (s.taken ? "\u2713 " : "") + s.name),
+            e("span", { className: "block text-[11px] text-slate-500" }, s.dose + " \u00b7 " + s.timing)
+          );
+        });
+
+        const nutrition = show("nutrition") ? e("section", null,
+          e("p", { className: "font-mono text-[11px] uppercase tracking-[0.2em] text-amber-300" }, "Nutrition & supplements"),
+          e("h3", { className: "text-xl font-semibold mb-3" }, "Low-carbohydrate day"),
+          e("div", { className: "grid gap-4 lg:grid-cols-5" },
+            e("article", { className: "lg:col-span-3 rounded-2xl border border-line bg-card p-5 space-y-4" },
+              e(MacroBar, Object.assign({ label: "Protein", tone: "protein" }, MOCK.macros.protein)),
+              e(MacroBar, Object.assign({ label: "Fat", tone: "fat" }, MOCK.macros.fat)),
+              e(MacroBar, Object.assign({ label: "Carbohydrates", tone: "carbs" }, MOCK.macros.carbs)),
+              e(MacroBar, Object.assign({ label: "Energy", tone: "calories" }, MOCK.macros.calories))
+            ),
+            e("article", { className: "lg:col-span-2 rounded-2xl border border-line bg-card p-5" },
+              e("div", { className: "mb-4 flex justify-between text-sm" },
+                e("span", null, "Daily checklist"),
+                e("span", { className: "font-mono text-cyan-neon" }, takenCount + "/" + supps.length)
+              ),
+              suppBtns
+            )
+          )
+        ) : null;
+
+        return e("div", { className: "min-h-screen flex" },
+          e("aside", { className: "hidden lg:flex w-64 flex-col border-r border-line bg-panel/80" },
+            e("div", { className: "px-5 py-6 border-b border-line" },
+              e("p", { className: "font-mono text-[10px] tracking-[0.22em] text-cyan-neon uppercase" }, "Aether Lab"),
+              e("p", { className: "text-sm font-semibold" }, "Telemetry")
+            ),
+            e("nav", { className: "flex-1 px-3 py-4 space-y-1" }, navBtns),
+            e("div", { className: "p-4 border-t border-line" },
+              e("p", { className: "text-sm font-medium" }, MOCK.athlete.name),
+              e("button", { onClick: props.onSignOut, className: "mt-3 w-full rounded-xl border border-line px-3 py-2 text-xs text-slate-400" }, "Sign out")
+            )
+          ),
+          e("div", { className: "flex-1 min-w-0" },
+            e("header", { className: "sticky top-0 z-20 border-b border-line bg-void/80" },
+              e("div", { className: "flex items-center justify-between px-4 py-3.5" },
+                e("div", null,
+                  e("button", { className: "lg:hidden mb-2 rounded-lg border border-line px-2 py-1 text-xs", onClick: function () { setMobileNav(!mobileNav); } }, "Menu"),
+                  e("h2", { className: "text-lg font-semibold" }, "Command Dashboard"),
+                  e("p", { className: "text-[11px] text-slate-500 font-mono" }, "Last sync " + MOCK.athlete.lastSync)
+                ),
+                e("span", { className: "hidden sm:flex items-center gap-2 text-xs text-slate-400" },
+                  e("span", { className: "h-2 w-2 rounded-full bg-cyan-neon" }),
+                  " Live mock"
+                )
+              ),
+              mobileNav ? e("div", { className: "lg:hidden px-3 pb-3 flex gap-2 overflow-x-auto" },
+                NAV.map(function (item) {
+                  return e("button", {
+                    key: item.id,
+                    onClick: function () { setSection(item.id); setMobileNav(false); },
+                    className: "rounded-full px-3 py-1.5 text-xs " + (section === item.id ? "bg-cyan-neon text-void" : "border border-line text-slate-400")
+                  }, item.label);
+                })
+              ) : null
+            ),
+            e("main", { className: "p-4 sm:p-6 space-y-6 max-w-7xl" }, wearable, training, nutrition)
+          )
         );
       }
 
       function App() {
         const [signedIn, setSignedIn] = useState(false);
-        if (!signedIn) return <LoginScreen onSignIn={() => setSignedIn(true)} />;
-        return <Dashboard onSignOut={() => setSignedIn(false)} />;
+        if (!signedIn) return e(LoginScreen, { onSignIn: function () { setSignedIn(true); } });
+        return e(Dashboard, { onSignOut: function () { setSignedIn(false); } });
       }
 
-      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+      ReactDOM.createRoot(document.getElementById("root")).render(e(App));
     </script>
   </body>
 </html>
