@@ -1,28 +1,13 @@
 # Unified Telemetry & Wellness Tracker
 
-Dark-mode SPA dashboard for wearable telemetry, training logs, and low-carb nutrition tracking. React 18 (hooks) + Tailwind CSS. No backend — all metrics are hardcoded mock data.
+Live site: https://buhessa90256.github.io/unified-telemetry/
 
-## Preview
+Dark dashboard for wearable telemetry, training, and low-carb nutrition. No backend. Sign in with any email and password.
 
-1. Open in [CodeSandbox](https://codesandbox.io) by importing this repo, or
-2. Run locally:
+## Open the website
 
-```bash
-npm install
-npm run dev
-```
+Use this URL (not the GitHub code page):
 
-Sign in with any email/password. The button is a demo gate only.
+https://buhessa90256.github.io/unified-telemetry/
 
-## Stack
-
-- React 18 functional components + `useState`
-- Vite
-- Tailwind CSS
-- Mock JSON objects in `src/App.jsx`
-
-## Widgets
-
-- Wearable telemetry (RHR, HRV, readiness)
-- Incline treadmill vs full-body strength supersets
-- Low-carb macros + supplement checklist (Omega-3, Ashwagandha KSM-66, digestive enzymes)
+If it still looks old, hard-refresh the browser (Ctrl+Shift+R / Cmd+Shift+R). Pages can take about a minute to update.
